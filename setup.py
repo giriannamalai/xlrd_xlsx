@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from xlrd.info import __VERSION__
+from xlrd_xlsx.info import __VERSION__
 
 setup(
     name = 'xlrd_xlsx',
@@ -8,7 +8,7 @@ setup(
     author = 'John Machin',
     author_email = 'sjmachin@lexicon.net',
     url = 'http://www.python-excel.org/',
-    packages = ['xlrd'],
+    packages = ['xlrd_xlsx'],
     scripts = [
         'scripts/runxlrd.py',
     ],

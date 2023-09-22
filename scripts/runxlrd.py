@@ -34,14 +34,14 @@ if __name__ == "__main__":
 
     PSYCO = 0
 
-    import xlrd
+    import xlrd_xlsx
     import sys
     import time
     import glob
     import traceback
     import gc
 
-    from xlrd.timemachine import xrange, REPR
+    from xlrd_xlsx.timemachine import xrange, REPR
 
 
     class LogHandler(object):
@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 self.shown = 1
             self.logfileobj.write(text)
 
-    null_cell = xlrd.empty_cell
+    null_cell = xlrd_xlsx.empty_cell
 
     def show_row(bk, sh, rowx, colrange, printit):
         if bk.ragged_rows:
@@ -72,11 +72,11 @@ if __name__ == "__main__":
             for colx, ty, val, cxfx in get_row_data(bk, sh, rowx, colrange):
                 if printit:
                     print("cell %s%d: type=%d, data: %r, xfx: %s"
-                        % (xlrd.colname(colx), rowx+1, ty, val, cxfx))
+                        % (xlrd_xlsx.colname(colx), rowx+1, ty, val, cxfx))
         else:
             for colx, ty, val, _unused in get_row_data(bk, sh, rowx, colrange):
                 if printit:
-                    print("cell %s%d: type=%d, data: %r" % (xlrd.colname(colx), rowx+1, ty, val))
+                    print("cell %s%d: type=%d, data: %r" % (xlrd_xlsx.colname(colx), rowx+1, ty, val))
 
     def get_row_data(bk, sh, rowx, colrange):
         result = []
@@ -90,14 +90,14 @@ if __name__ == "__main__":
                 cxfx = str(sh.cell_xf_index(rowx, colx))
             else:
                 cxfx = ''
-            if cty == xlrd.XL_CELL_DATE:
+            if cty == xlrd_xlsx.XL_CELL_DATE:
                 try:
-                    showval = xlrd.xldate_as_tuple(cval, dmode)
-                except xlrd.XLDateError as e:
+                    showval = xlrd_xlsx.xldate_as_tuple(cval, dmode)
+                except xlrd_xlsx.XLDateError as e:
                     showval = "%s:%s" % (type(e).__name__, e)
-                    cty = xlrd.XL_CELL_ERROR
-            elif cty == xlrd.XL_CELL_ERROR:
-                showval = xlrd.error_text_from_code.get(cval, '<Unknown error code 0x%02x>' % cval)
+                    cty = xlrd_xlsx.XL_CELL_ERROR
+            elif cty == xlrd_xlsx.XL_CELL_ERROR:
+                showval = xlrd_xlsx.error_text_from_code.get(cval, '<Unknown error code 0x%02x>' % cval)
             else:
                 showval = cval
             result.append((colx, cty, showval, cxfx))
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     def bk_header(bk):
         print()
         print("BIFF version: %s; datemode: %s"
-            % (xlrd.biff_text_from_num[bk.biff_version], bk.datemode))
+            % (xlrd_xlsx.biff_text_from_num[bk.biff_version], bk.datemode))
         print("codepage: %r (encoding: %s); countries: %r"
             % (bk.codepage, bk.encoding, bk.countries))
         print("Last saved by: %r" % bk.user_name)
@@ -147,10 +147,10 @@ if __name__ == "__main__":
         if not labs:return
         for rlo, rhi, clo, chi in labs:
             print("%s label range %s:%s contains:"
-                % (title, xlrd.cellname(rlo, clo), xlrd.cellname(rhi-1, chi-1)))
+                % (title, xlrd_xlsx.cellname(rlo, clo), xlrd_xlsx.cellname(rhi-1, chi-1)))
             for rx in xrange(rlo, rhi):
                 for cx in xrange(clo, chi):
-                    print("    %s: %r" % (xlrd.cellname(rx, cx), sh.cell_value(rx, cx)))
+                    print("    %s: %r" % (xlrd_xlsx.cellname(rx, cx), sh.cell_value(rx, cx)))
 
     def show_labels(bk):
         # bk_header(bk)
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     def show(bk, nshow=65535, printit=1):
         bk_header(bk)
         if 0:
-            rclist = xlrd.sheet.rc_stats.items()
+            rclist = xlrd_xlsx.sheet.rc_stats.items()
             rclist = sorted(rclist)
             print("rc stats")
             for k, v in rclist:
@@ -289,13 +289,13 @@ if __name__ == "__main__":
         cmd = args[0]
         xlrd_version = getattr(xlrd, "__VERSION__", "unknown; before 0.5")
         if cmd == 'biff_dump':
-            xlrd.dump(args[1], unnumbered=options.unnumbered)
+            xlrd_xlsx.dump(args[1], unnumbered=options.unnumbered)
             sys.exit(0)
         if cmd == 'biff_count':
-            xlrd.count_records(args[1])
+            xlrd_xlsx.count_records(args[1])
             sys.exit(0)
         if cmd == 'version':
-            print("xlrd: %s, from %s" % (xlrd_version, xlrd.__file__))
+            print("xlrd: %s, from %s" % (xlrd_version, xlrd_xlsx.__file__))
             print("Python:", sys.version)
             sys.exit(0)
         if options.logfilename:
@@ -303,7 +303,7 @@ if __name__ == "__main__":
         else:
             logfile = sys.stdout
         mmap_opt = options.mmap
-        mmap_arg = xlrd.USE_MMAP
+        mmap_arg = xlrd_xlsx.USE_MMAP
         if mmap_opt in (1, 0):
             mmap_arg = mmap_opt
         elif mmap_opt != -1:
@@ -327,7 +327,7 @@ if __name__ == "__main__":
                     PSYCO = 0
                 try:
                     t0 = time.time()
-                    bk = xlrd.open_workbook(
+                    bk = xlrd_xlsx.open_workbook(
                         fname,
                         verbosity=options.verbosity, logfile=logfile,
                         use_mmap=mmap_arg,
@@ -339,7 +339,7 @@ if __name__ == "__main__":
                     t1 = time.time()
                     if not options.suppress_timing:
                         print("Open took %.2f seconds" % (t1-t0,))
-                except xlrd.XLRDError as e:
+                except xlrd_xlsx.XLRDError as e:
                     print("*** Open failed: %s: %s" % (type(e).__name__, e))
                     continue
                 except KeyboardInterrupt:
